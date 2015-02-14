@@ -8,7 +8,6 @@ from magic import Magic
 import os
 import redis
 from slimit.parser import Parser as JSParser
-import sqlite3
 import sys
 from time import gmtime
 from time import strftime
@@ -36,24 +35,23 @@ class ScriptExtractor(HTMLParser):
     if tag == 'script':
       self.pos = self.getpos()
       attrs = dict(attrs)
-      if attrs.get('type', None) == 'text/javascript':
-        src = attrs.get('src', '').strip()
-        if src:
-          url = urljoin(self.url, src)
-          path = self._getpath(url)
-          if self._addpath(path):
-            try:
-              urlres = urlopen(url)
-              if urlres.getcode() != 200:
-                raise IOError
-              script = urlres.read().strip()
-              if script.startswith('<!--') and script.endswith('-->'):
-                script = script[4:-3].strip()
-              if script:
-                date = strftime('%a, %d %b %Y %H:%M:%S GMT', gmtime())
-                self._addscript(path, date, url, script)
-            except IOError:
-              print >> sys.stderr, 'Cannot retrieve ' + url
+      src = attrs.get('src', '').strip()
+      if src:
+        url = urljoin(self.url, src)
+        path = self._getpath(url)
+        if self._addpath(path):
+          try:
+            urlres = urlopen(url)
+            if urlres.getcode() != 200:
+              raise IOError
+            script = urlres.read().strip()
+            if script.startswith('<!--') and script.endswith('-->'):
+              script = script[4:-3].strip()
+            if script:
+              date = strftime('%a, %d %b %Y %H:%M:%S GMT', gmtime())
+              self._addscript(path, date, url, script)
+          except IOError:
+            print >> sys.stderr, 'Cannot retrieve ' + url
 
   def handle_data(self, data):
     if self.pos:
