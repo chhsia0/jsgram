@@ -6,7 +6,7 @@ from binascii import hexlify
 from binascii import unhexlify
 from hashlib import sha1
 from http_parser.parser import HttpParser
-from magic import Magic
+import magic
 import os
 import redis
 from slimit.parser import Parser as JSParser
@@ -29,7 +29,6 @@ arg_parser.add_argument('--prefix', default = '.', type = str)
 args = arg_parser.parse_args()
 
 redis_db = redis.StrictRedis()
-magic_mime = Magic(mime = True)
 
 class ScriptExtractor(HTMLParser):
   def init(self, url, date):
@@ -113,7 +112,8 @@ class ScriptExtractor(HTMLParser):
         js_parser.parse(script)
       except Exception:
         # Keep unparsable scripts as 'bad' script if they don't look like HTML.
-        if magic_mime.from_buffer(script.replace('\v', ' ')) == 'text/html':
+        text = script.replace('\v', ' ')
+        if magic.from_buffer(text, mime = True) == 'text/html':
           return
         print >> sys.stderr, 'Cannot parse ' + path
         path = '.bad/' + path
