@@ -33,9 +33,9 @@ redis_db = redis.StrictRedis()
 class ScriptExtractor(HTMLParser):
   def init(self, url, date):
     self.reset()
-    self.pos = None
     self.url = url
     self.date = date
+    self.pos = None
     self.last = dict()
 
   def handle_starttag(self, tag, attrs):
@@ -113,8 +113,8 @@ class ScriptExtractor(HTMLParser):
         js_parser.parse(script)
       except Exception:
         # Keep unparsable scripts as 'bad' script if they don't look like HTML.
-        text = script.replace('\v', ' ')
-        if magic.from_buffer(text, mime = True) == 'text/html':
+        mime_type = magic.from_buffer(script.replace('\v', ' '), mime = True)
+        if mime_type == 'text/html' or mime_type == 'application/xml':
           return
         print >> sys.stderr, 'Cannot parse ' + path
         path = '.bad/' + path
