@@ -35,7 +35,7 @@ from urllib import FancyURLopener
 from urllib import quote
 from urllib import urlopen
 from urlparse import urljoin
-from urlparse import urlsplit
+from urlparse import urlparse
 import warc
 
 FancyURLopener.prompt_user_passwd = lambda *args, **kwargs: (None, None)
@@ -103,13 +103,13 @@ class ScriptExtractor(HTMLParser):
 
   def _getpath(self, url, inline = None):
     # Leave 63 bytes for prefix if the full path is restricted to 255 bytes.
-    loc = urlsplit(url)
+    loc = urlparse(url)
     loc = loc._replace(netloc = loc[1].lower(), fragment = inline)
     self.last['url'] = loc.geturl()
     path = (loc[1][3:] if loc[1].startswith('www') else loc[1])
     path = path.encode('ascii', 'ignore').translate(None, '.-').ljust(2, '_')
     path = path[0] + '/' + path[1] + '/' + quote(loc[1], '%')[:89]
-    filename = quote(loc[2].strip('/') + ('#' + loc[4] if loc[4] else ''), '%')
+    filename = quote(loc[2].strip('/') + ('#' + loc[5] if loc[5] else ''), '%')
     if not filename.endswith('.js'):
       filename += '.js'
     return path + '/' + filename[-92:]
