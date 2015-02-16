@@ -44,7 +44,7 @@ class ScriptExtractor(HTMLParser):
       attrs = dict(attrs)
       src = attrs.get('src', '').strip()
       if src:
-        url = urljoin(self.url, src).encode('latin_1')
+        url = urljoin(self.url, src.encode('latin_1', 'xmlcharrefreplace'))
         path = self._getpath(url)
         if self._addpath(path):
           try:
@@ -73,6 +73,7 @@ class ScriptExtractor(HTMLParser):
   def handle_endtag(self, tag):
     if tag == 'script':
       self.pos = None
+      self.last = dict()
 
   def handle_error(self):
     p_checksum = self.last.get('path_checksum', None)
@@ -81,7 +82,7 @@ class ScriptExtractor(HTMLParser):
     s_checksum = self.last.get('script_checksum', None)
     if s_checksum:
       redis_db.srem('js_script_checksums', unhexlify(s_checksum))
-    print >> sys.stderr, self.last
+    print >> sys.stderr, self.pos, self.last
 
   def _getpath(self, url, inline = None):
     # Leave 63 bytes for prefix if the full path is restricted to 255 bytes.
@@ -127,7 +128,6 @@ class ScriptExtractor(HTMLParser):
       jsfile.write(header)
       jsfile.write(script)
       jsfile.close()
-      self.last = dict()
 
 extractor = ScriptExtractor()
 
