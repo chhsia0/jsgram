@@ -9,11 +9,10 @@ SRCS=$(wildcard *.cc *.cpp)
 jsgram: BuiltIns.o CanonicalAst.o DependenceGraph.o PDGExtractor.o CodePrinter.o StatementCopier.o OperationPrinter.o SequenceExtractor.o
 
 v8:
-	git clone http://github.com/v8/v8
-	cd v8
-	git checkout origin/3.15
-	svn co http://gyp.googlecode.com/svn/trunk build/gyp --revision 1831
-	make x64.debug
+	if [ ! -d depot_tools ]; then git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git; fi
+	if [ ! -d v8 ]; then ./depot_tools/fetch v8; fi
+	cd v8 && git checkout branch-heads/3.15
+	cd v8 && make x64.debug
 
 depend:
 	sed -i '/^# DO NOT DELETE$$/{q}' Makefile
