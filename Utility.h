@@ -20,17 +20,17 @@
 
 #include <functional>
 #include <iterator>
-#include <tr1/functional>
+#include <functional>
 #include <utility>
 
-namespace std { namespace tr1 {
+namespace std { //namespace tr1 {
 
 template<class T>
 struct hash<pair<T,T> > : unary_function<pair<T,T>,size_t> {
     inline size_t operator() (const pair<T,T>& x) const { return hash<T>()(x.first) * 2654435761 + hash<T>()(x.second) * 0x6b43a9b5; }
 };
 
-} }
+} //}
 
 template <class Map>
 struct key_iterator : std::iterator<std::bidirectional_iterator_tag,const typename Map::key_type> {

@@ -1,17 +1,18 @@
 CC=g++
 CXXFLAGS=-m64 -fno-rtti -fno-rtti -fno-exceptions -fvisibility=hidden -Wall -W -Werror -Woverloaded-virtual -Wnon-virtual-dtor \
-         -Wno-unused-const-variable -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-parameter -Wno-unneeded-internal-declaration -Wno-unused-function
+         -Wno-unused-const-variable -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-parameter \
+         -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-private-field
 CXXFLAGS+=-DV8_TARGET_ARCH_X64 -DOBJECT_PRINT -DENABLE_DISASSEMBLER -DENABLE_DEBUGGER_SUPPORT -DV8_ENABLE_CHECKS -DDEBUG -O3
 CXXFLAGS+=-isystem v8/include -isystem v8/src
-LDFLAGS=-static -Lv8/out/x64.debug/obj.target/tools/gyp -pthread
+LDFLAGS=-Lv8/out/x64.debug/ -pthread
 LDLIBS=-lv8_base -lv8_snapshot -lsqlite3 -ldl
 SRCS=$(wildcard *.cc *.cpp)
 
 jsgram: BuiltIns.o CanonicalAst.o DependenceGraph.o PDGExtractor.o CodePrinter.o StatementCopier.o OperationPrinter.o SequenceExtractor.o
 
-v8: v8/out/x64.debug/obj.target/tools/gyp/libv8_base.so
+v8: v8/out/x64.debug/libv8_base.a
 
-v8/out/x64.debug/obj.target/tools/gyp/libv8_base.so:
+v8/out/x64.debug/libv8_base.a:
 	if [ ! -d depot_tools ]; then git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git; fi
 	if [ ! -d v8 ]; then ./depot_tools/fetch v8; fi
 	cd v8 && git checkout branch-heads/3.15
