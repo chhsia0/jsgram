@@ -2,13 +2,15 @@ CC=g++
 CXXFLAGS=-m64 -fno-rtti -fno-rtti -fno-exceptions -fvisibility=hidden -Wall -W -Werror -Woverloaded-virtual -Wnon-virtual-dtor \
          -Wno-unused-const-variable -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-parameter \
          -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-private-field
-CXXFLAGS+=-DV8_TARGET_ARCH_X64 -DOBJECT_PRINT -DENABLE_DISASSEMBLER -DENABLE_DEBUGGER_SUPPORT -DV8_ENABLE_CHECKS -DDEBUG -O3
+CXXFLAGS+=-DOBJECT_PRINT -DENABLE_DISASSEMBLER -DENABLE_DEBUGGER_SUPPORT -DV8_ENABLE_CHECKS -DDEBUG -O3
 CXXFLAGS+=-isystem v8/include -isystem v8/src
 LDFLAGS=-Lv8/out/x64.debug/ -pthread
-LDLIBS=-lv8_base -lv8_snapshot -lsqlite3 -ldl
+LDLIBS=-lv8 -lsqlite3 -ldl
 SRCS=$(wildcard *.cc *.cpp)
+V8STATICLIBS=v8/out/x64.debug/libv8_base.a v8/out/x64.debug/libv8_snapshot.a
 
 jsgram: BuiltIns.o CanonicalAst.o DependenceGraph.o PDGExtractor.o CodePrinter.o StatementCopier.o OperationPrinter.o SequenceExtractor.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDLIBS) jsgram.cc $^ $(V8STATICLIBS) -o jsgram
 
 v8: v8/out/x64.debug/libv8_base.a
 
@@ -16,7 +18,7 @@ v8/out/x64.debug/libv8_base.a:
 	if [ ! -d depot_tools ]; then git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git; fi
 	if [ ! -d v8 ]; then ./depot_tools/fetch v8; fi
 	cd v8 && git checkout branch-heads/3.15
-	cd v8 && CXXFLAGS="-Wno-unused-const-variable -Wno-unneeded-internal-declaration -Wno-unneeded-internal-declaration -Wno-unneeded-internal-declaration -Wno-unused-function" make x64.debug werror=no
+	cd v8 && CXXFLAGS="-Wno-unused-const-variable -Wno-unneeded-internal-declaration -Wno-unneeded-internal-declaration -Wno-unneeded-internal-declaration -Wno-unused-function" make x64.debug library=shared
 
 depend:
 	sed -i '/^# DO NOT DELETE$$/{q}' Makefile

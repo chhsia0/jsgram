@@ -1,0 +1,5 @@
+v8/
+depot_tools/
+*.o
+jsgram
+.gclient*
